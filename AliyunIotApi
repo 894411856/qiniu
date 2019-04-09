@@ -203,4 +203,11 @@ public class AliyunIotApi {
 
 
 
+#aliyun IOT 初始化参数
+iot_access_key=LTAIDFNFdUFkGlx3
+iot_access_secret=2iw4LyFuXuLIc1tFcy5lDCC0Hkyt4r
+iot_endpointname=cn-shanghai
+iot_regionid=cn-shanghai
+iot_product=Iot
+iot_domain=iot.cn-shanghai.aliyuncs.com
 
