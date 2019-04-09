@@ -1,0 +1,206 @@
+package com.example.Api;
+
+import com.aliyuncs.DefaultAcsClient;
+import com.aliyuncs.exceptions.ClientException;
+import com.aliyuncs.http.FormatType;
+import com.aliyuncs.iot.model.v20180120.*;
+import com.aliyuncs.profile.DefaultProfile;
+import com.aliyuncs.profile.IClientProfile;
+
+
+/**
+ * @author : ljt
+ * @time : 2018/1/12
+ * @description : IotApi
+ */
+public class AliyunIotApi {
+
+    public static final String MODEL_TYPE_2 = "2"; //音箱类型
+    public static final String TOPIC_ALL = "ALL"; //发布和订阅
+    public static final String TOPIC_PUB = "PUB"; //发布
+    public static final String TOPIC_SUB = "SUB"; //订阅
+    public static final String IOTHUB_SENIOR = "iothub_senior"; //高级
+    public static final String IOTHUB = "iothub"; //基础版
+    public static final int NODE_ZERO = 0;  //设备
+    public static final int NODE_ONE = 1;  //网关
+    public static final int CUSTOM_FORMAT = 0; //透传/自定义格式
+    public static final int ALINK_FORMAT = 1; //Alink协议
+    public static final boolean ID2_TRUE = true; // 开通ID²认证。
+    public static final boolean ID2_FALSE = false;//不开通ID²认证。
+    public static final String MODBUS = "modbus"; //Modbus协议
+    public static final String OPCUA = "opc-ua"; //OPC UA协议
+    public static final String CUSTOMIZE = "customize"; //自定义协议
+    public static final String BLE = "ble"; //BLE协议
+    public static final String ZIGBEE = "zigbee"; //ZigBee协议
+    public static final String WIFI = "WIFI"; //WiFi
+    public static final String CELLULAR = "CELLULAR"; //蜂窝网
+    public static final String ETHERNET = "ETHERNET"; //以太网
+    public static final String OTHER = "OTHER"; //其他
+    private static String ACCESSKEY;
+    private static String ACCESSSECRET;
+    private static String ENDPOINTNAME;
+    private static String REGIONID;
+    private static String PRODUCT;
+    private static String DOMAIN;
+
+    /**
+     * 新增产品
+     *
+     * @param productName
+     * @param description
+     * @param nodeType
+     * @param aliyunCommodityCode
+     * @return
+     * @throws ClientException
+     */
+    public static CreateProductResponse addProduct(String productName, String description, int nodeType,
+                                                   String aliyunCommodityCode) throws ClientException {
+        CreateProductRequest request = new CreateProductRequest();
+        request.setActionName("CreateProduct");//请求名称
+        request.setAcceptFormat(FormatType.JSON); //请求类型格式
+        request.setRegionId(getREGIONID()); //地理位置
+        request.setProductName(productName);
+        request.setNodeType(nodeType); //0设备 1网关
+        request.setAliyunCommodityCode(aliyunCommodityCode); // iothub_senior：高级版 ,iothub：基础版
+        request.setDescription(description); //描述
+        request.setId2(false); //ID 认证
+        CreateProductResponse response = init().getAcsResponse(request);
+        return response;
+    }
+
+
+    /**
+     * 查询产品
+     *
+     * @param ProductKey
+     * @return
+     * @throws ClientException
+     */
+    public static QueryProductResponse queryProduct(String ProductKey) throws ClientException {
+        QueryProductRequest request = new QueryProductRequest();
+        request.setActionName("QueryProduct");//请求名称
+        request.setAcceptFormat(FormatType.JSON); //请求类型格式
+        request.setRegionId(getREGIONID()); //地理位置
+        request.setProductKey(ProductKey);
+        QueryProductResponse response = init().getAcsResponse(request);
+        return response;
+    }
+
+
+    /**
+     * 初始化Topic
+     *
+     * @param productKey
+     * @param modelId
+     * @param str
+     * @param topicType
+     * @param desc
+     * @return
+     * @throws ClientException
+     */
+    public static CreateProductTopicResponse createProductTopic(String productKey, String modelId,
+                                                                String str, String topicType,
+                                                                String desc) throws ClientException {
+
+        CreateProductTopicRequest request = new CreateProductTopicRequest();
+        request.setActionName("CreateProductTopic");//请求名称
+        request.setAcceptFormat(FormatType.JSON); //请求类型格式
+        request.setRegionId(getREGIONID()); //地理位置
+        request.setProductKey(productKey);
+        request.setTopicShortName(str);
+        request.setOperation(topicType);
+        request.setDesc(desc);
+        CreateProductTopicResponse response = init().getAcsResponse(request);
+        return response;
+    }
+
+
+    /**
+     * 注册设备
+     *
+     * @param deviceName
+     * @param productKey
+     * @return
+     * @throws ClientException
+     */
+    public static RegisterDeviceResponse registerDevice(String deviceName
+            , String productKey) throws ClientException {
+        RegisterDeviceRequest request = new RegisterDeviceRequest();
+        request.setActionName("RegisterDevice");//请求名称
+        request.setProductKey(productKey);//key
+        request.setDeviceName(deviceName); //设备名称
+        request.setAcceptFormat(FormatType.JSON); //请求类型格式
+        request.setRegionId(getREGIONID()); //地理位置
+        RegisterDeviceResponse response = init().getAcsResponse(request);
+        return response;
+    }
+
+
+    /**
+     * 初始化SDK客户端
+     *
+     * @return
+     * @throws ClientException
+     */
+    public static DefaultAcsClient init() throws ClientException {
+        DefaultProfile.addEndpoint(getENDPOINTNAME(), getREGIONID(), getPRODUCT(), getDOMAIN());
+        IClientProfile profile = DefaultProfile.getProfile(
+                getREGIONID(), getACCESSKEY(), getACCESSSECRET());
+        DefaultAcsClient client = new DefaultAcsClient(profile); //初始化SDK客户端
+        return client;
+    }
+
+
+    public static String getACCESSKEY() {
+        return ACCESSKEY;
+    }
+
+    public static void setACCESSKEY(String ACCESSKEY) {
+        AliyunIotApi.ACCESSKEY = ACCESSKEY;
+    }
+
+    public static String getACCESSSECRET() {
+        return ACCESSSECRET;
+    }
+
+    public static void setACCESSSECRET(String ACCESSSECRET) {
+        AliyunIotApi.ACCESSSECRET = ACCESSSECRET;
+    }
+
+    public static String getENDPOINTNAME() {
+        return ENDPOINTNAME;
+    }
+
+    public static void setENDPOINTNAME(String ENDPOINTNAME) {
+        AliyunIotApi.ENDPOINTNAME = ENDPOINTNAME;
+    }
+
+    public static String getREGIONID() {
+        return REGIONID;
+    }
+
+    public static void setREGIONID(String REGIONID) {
+        AliyunIotApi.REGIONID = REGIONID;
+    }
+
+    public static String getPRODUCT() {
+        return PRODUCT;
+    }
+
+    public static void setPRODUCT(String PRODUCT) {
+        AliyunIotApi.PRODUCT = PRODUCT;
+    }
+
+    public static String getDOMAIN() {
+        return DOMAIN;
+    }
+
+    public static void setDOMAIN(String DOMAIN) {
+        AliyunIotApi.DOMAIN = DOMAIN;
+    }
+
+}
+
+
+
+
